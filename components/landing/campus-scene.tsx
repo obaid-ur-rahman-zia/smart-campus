@@ -1,133 +1,109 @@
 "use client";
 
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Float, Stars, PerspectiveCamera } from "@react-three/drei";
-import { useRef } from "react";
-import * as THREE from "three";
+import { useEffect, useRef } from "react";
+import type { GlobeInstance } from "globe.gl";
 
-const PARTICLE_COUNT = 350;
+const EARTH_TEXTURE =
+  "https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg";
 
-function createParticleGeometry() {
-  const positions = new Float32Array(PARTICLE_COUNT * 3);
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
-    positions[i * 3] = (Math.random() - 0.5) * 20;
-    positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 20;
-  }
+const GLOBE_ARCS = [
+  { startLat: 24.86, startLng: 67.01, endLat: 51.51, endLng: -0.13 },
+  { startLat: 33.72, startLng: 73.04, endLat: 40.71, endLng: -74.01 },
+  { startLat: 25.2, startLng: 55.27, endLat: 1.35, endLng: 103.82 },
+  { startLat: 48.86, startLng: 2.35, endLat: 35.68, endLng: 139.69 },
+];
 
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-  return geo;
-}
+const GLOBE_POINTS = GLOBE_ARCS.flatMap((arc) => [
+  { lat: arc.startLat, lng: arc.startLng, size: 0.35, color: "#4ea4ff" },
+  { lat: arc.endLat, lng: arc.endLng, size: 0.25, color: "#93c5fd" },
+]);
 
-const particleGeometry = createParticleGeometry();
+function fitGlobeView(globe: GlobeInstance, width: number, height: number) {
+  const minDim = Math.min(width, height);
+  const cameraDistance = minDim * 0.58;
+  const altitude = minDim < 400 ? 2.05 : 1.9;
 
-function ParticleField() {
-  const particlesRef = useRef<THREE.Points>(null);
-
-  useFrame((state) => {
-    if (particlesRef.current) {
-      particlesRef.current.rotation.y = state.clock.elapsedTime * 0.02;
-    }
-  });
-
-  return (
-    <points ref={particlesRef} geometry={particleGeometry}>
-      <pointsMaterial
-        size={0.05}
-        color="#4682b4"
-        transparent
-        opacity={0.6}
-        sizeAttenuation
-      />
-    </points>
-  );
-}
-
-function CampusScene() {
-  const globeRef = useRef<THREE.Mesh>(null);
-  const cloudRef = useRef<THREE.Mesh>(null);
-
-  useFrame((state) => {
-    if (globeRef.current) {
-      globeRef.current.rotation.y = state.clock.elapsedTime * 0.2;
-      globeRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.15) * 0.08;
-    }
-    if (cloudRef.current) {
-      cloudRef.current.rotation.y = -state.clock.elapsedTime * 0.16;
-    }
-  });
-
-  return (
-    <group>
-      <mesh ref={globeRef} position={[0, 0.2, 0]} castShadow receiveShadow>
-        <sphereGeometry args={[1.5, 64, 64]} />
-        <meshStandardMaterial color="#123d74" metalness={0.45} roughness={0.25} />
-      </mesh>
-
-      <mesh ref={cloudRef} position={[0, 0.2, 0]}>
-        <sphereGeometry args={[1.57, 64, 64]} />
-        <meshStandardMaterial color="#8bbcf4" transparent opacity={0.18} />
-      </mesh>
-
-      <mesh position={[0, 0.2, 0]} rotation={[0.45, 0, 0.3]}>
-        <torusGeometry args={[2.35, 0.03, 24, 160]} />
-        <meshStandardMaterial color="#4ea4ff" emissive="#4ea4ff" emissiveIntensity={0.8} transparent opacity={0.6} />
-      </mesh>
-
-      <mesh position={[0, 0.2, 0]} rotation={[-0.7, 0.5, 0]}>
-        <torusGeometry args={[2.55, 0.018, 18, 120]} />
-        <meshStandardMaterial color="#93c5fd" emissive="#93c5fd" emissiveIntensity={0.4} transparent opacity={0.4} />
-      </mesh>
-
-      <mesh position={[0, -2.05, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <circleGeometry args={[2.2, 64]} />
-        <meshStandardMaterial color="#0b1b34" transparent opacity={0.85} />
-      </mesh>
-
-      <ParticleField />
-    </group>
-  );
+  const controls = globe.controls();
+  controls.minDistance = cameraDistance;
+  controls.maxDistance = cameraDistance;
+  globe.pointOfView({ lat: 20, lng: 60, altitude }, 0);
 }
 
 export function CampusSceneComponent() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let globe: GlobeInstance | undefined;
+    let resizeObserver: ResizeObserver | undefined;
+    let cancelled = false;
+
+    void (async () => {
+      const { default: Globe } = await import("globe.gl");
+      if (cancelled || !containerRef.current) return;
+
+      const { clientWidth, clientHeight } = container;
+
+      globe = new Globe(container, {
+        animateIn: true,
+        waitForGlobeReady: true,
+        rendererConfig: { alpha: true, antialias: true },
+      })
+        .width(clientWidth)
+        .height(clientHeight)
+        .backgroundColor("rgba(0,0,0,0)")
+        .globeImageUrl(EARTH_TEXTURE)
+        .showAtmosphere(true)
+        .atmosphereColor("#4ea4ff")
+        .atmosphereAltitude(0.12)
+        .arcsData(GLOBE_ARCS)
+        .arcColor(() => ["#4ea4ff", "#93c5fd"])
+        .arcAltitude(0.25)
+        .arcStroke(0.6)
+        .arcDashLength(0.4)
+        .arcDashGap(0.2)
+        .arcDashAnimateTime(2000)
+        .pointsData(GLOBE_POINTS)
+        .pointAltitude(0.01)
+        .pointRadius("size")
+        .pointColor("color");
+
+      const controls = globe.controls();
+      controls.autoRotate = true;
+      controls.autoRotateSpeed = 0.85;
+      controls.enableZoom = false;
+      controls.enablePan = false;
+
+      fitGlobeView(globe, clientWidth, clientHeight);
+      globe.renderer().setClearColor(0x000000, 0);
+
+      const onResize = () => {
+        if (!containerRef.current || !globe) return;
+        const { clientWidth: w, clientHeight: h } = containerRef.current;
+        globe.width(w);
+        globe.height(h);
+        fitGlobeView(globe, w, h);
+      };
+
+      resizeObserver = new ResizeObserver(onResize);
+      resizeObserver.observe(container);
+    })();
+
+    return () => {
+      cancelled = true;
+      resizeObserver?.disconnect();
+      globe?._destructor();
+      container.innerHTML = "";
+    };
+  }, []);
+
   return (
-    <div className="h-full w-full">
-      <Canvas shadows dpr={[1, 2]}>
-        <PerspectiveCamera makeDefault position={[0, 1, 6]} fov={50} />
-
-        {/* Lighting */}
-        <ambientLight intensity={0.55} />
-        <directionalLight
-          position={[5, 8, 5]}
-          intensity={1.8}
-          castShadow
-          shadow-mapSize={[1024, 1024]}
-        />
-        <directionalLight position={[-3, 4, -2]} intensity={0.8} color="#7ab5ff" />
-        <pointLight position={[0, 3, 0]} intensity={0.45} color="#4ea4ff" />
-
-        {/* Environment */}
-        <Stars radius={50} depth={10} count={500} factor={3} saturation={0} fade speed={1} />
-
-        <Float
-          speed={1.8}
-          rotationIntensity={0.15}
-          floatIntensity={0.28}
-          floatingRange={[-0.12, 0.12]}
-        >
-          <CampusScene />
-        </Float>
-
-        <OrbitControls
-          enablePan={false}
-          enableZoom={false}
-          minPolarAngle={Math.PI / 4}
-          maxPolarAngle={Math.PI / 2.5}
-          autoRotate
-          autoRotateSpeed={0.5}
-        />
-      </Canvas>
-    </div>
+    <div
+      ref={containerRef}
+      className="h-full w-full bg-transparent overflow-visible [&_canvas]:!bg-transparent"
+      aria-hidden
+    />
   );
 }

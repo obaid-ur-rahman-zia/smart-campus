@@ -12,9 +12,6 @@ export default function LoginPage() {
         <div className="mx-auto w-full max-w-sm lg:w-96">
           <div className="mb-12">
             <Link href="/" className="inline-flex items-center gap-2">
-               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white shadow-xl shadow-primary/20">
-                  <GraduationCap className="size-6" />
-               </div>
                <span className="text-xl font-black tracking-tight text-primary">Academic Meridian</span>
             </Link>
           </div>

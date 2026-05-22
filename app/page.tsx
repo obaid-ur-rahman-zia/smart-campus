@@ -40,9 +40,6 @@ export default function Home() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white shadow-lg shadow-primary/20">
-              <GraduationCap className="size-6" />
-            </div>
             <div className="flex flex-col leading-none">
               <span className="text-xl font-black tracking-tight text-primary">Academic Meridian</span>
               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary">Service Portal</span>
@@ -84,7 +81,7 @@ export default function Home() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative pt-10 pb-32 md:pt-20 md:pb-20 overflow-hidden">
+        <section className="relative pt-10 pb-32 md:pt-20 md:pb-20 overflow-visible">
           <div className="container relative z-10 mx-auto max-w-7xl px-6">
             <div className="grid lg:grid-cols-2 lg:items-center lg:gap-20">
               <motion.div
@@ -164,8 +161,8 @@ export default function Home() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1, delay: 0.5 }}
               >
-                <div className="relative z-10 overflow-hidden rounded-[40px] p-2 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] ring-1 ring-slate-100">
-                  <div className="aspect-[4/3] rounded-[32px] overflow-hidden bg-black">
+                <div className="relative z-10 mx-auto w-full max-w-2xl overflow-visible">
+                  <div className="aspect-square w-full min-h-[360px] sm:min-h-[460px] lg:min-h-[540px]">
                     <CampusSceneComponent />
                   </div>
                 </div>

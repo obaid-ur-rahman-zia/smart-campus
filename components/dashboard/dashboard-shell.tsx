@@ -64,13 +64,6 @@ export function DashboardShell({ children, role, fullName, avatarUrl }: Dashboar
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       >
         <div className="flex h-20 items-center gap-3 px-8">
-          <motion.div
-            className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-primary shadow-xl shadow-black/20"
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            transition={{ type: "spring", stiffness: 400 }}
-          >
-            <GraduationCap className="size-5" />
-          </motion.div>
           <div className="flex flex-col leading-tight">
             <span className="text-lg font-black tracking-tight">Meridian</span>
             <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Institutional</span>
