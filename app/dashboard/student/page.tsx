@@ -127,7 +127,7 @@ export default async function StudentDashboardPage() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    requests.slice(0, 6).map((request, i) => (
+                    requests.slice(0, 6).map((request) => (
                       <TableRow key={request.id} className="group transition-colors hover:bg-slate-50/70 border-slate-50">
                         <TableCell className="px-8 py-6">
                           <div className="flex flex-col gap-1">

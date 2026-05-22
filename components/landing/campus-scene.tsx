@@ -2,25 +2,28 @@
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Float, Stars, PerspectiveCamera } from "@react-three/drei";
-import { useRef, useMemo } from "react";
+import { useRef } from "react";
 import * as THREE from "three";
+
+const PARTICLE_COUNT = 350;
+
+function createParticleGeometry() {
+  const positions = new Float32Array(PARTICLE_COUNT * 3);
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 20;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 20;
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  return geo;
+}
+
+const particleGeometry = createParticleGeometry();
 
 function ParticleField() {
   const particlesRef = useRef<THREE.Points>(null);
-  const particleCount = 350;
-
-  const geometry = useMemo(() => {
-    const positions = new Float32Array(particleCount * 3);
-    for (let i = 0; i < particleCount; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 20;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 20;
-    }
-
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    return geo;
-  }, []);
 
   useFrame((state) => {
     if (particlesRef.current) {
@@ -29,7 +32,7 @@ function ParticleField() {
   });
 
   return (
-    <points ref={particlesRef} geometry={geometry}>
+    <points ref={particlesRef} geometry={particleGeometry}>
       <pointsMaterial
         size={0.05}
         color="#4682b4"

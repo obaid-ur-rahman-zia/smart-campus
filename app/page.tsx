@@ -50,7 +50,7 @@ export default function Home() {
           </motion.div>
 
           <nav className="hidden items-center gap-10 lg:flex">
-            {navItems.map((item, i) => (
+            {navItems.map((item) => (
               <Link
                 key={item}
                 href={`#${item.toLowerCase()}`}
