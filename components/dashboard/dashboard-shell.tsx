@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
+import type { UserRole } from "@/types/database";
 
 type DashboardShellProps = {
   children: React.ReactNode;

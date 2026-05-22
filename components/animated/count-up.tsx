@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useSpring, useTransform, useMotionValue } from "framer-motion";
+import { animate, motion, useMotionValue, useTransform } from "framer-motion";
 
 interface CountUpProps {
   from?: number;
@@ -32,16 +32,16 @@ export function CountUp({
     return prefix + latest.toFixed(decimals) + suffix;
   });
 
-  const spring = useSpring(count, {
-    duration: duration * 1000,
-    ease: [0.22, 1, 0.36, 1],
-  });
-
   useEffect(() => {
-    if (shouldCount) {
-      spring.set(to);
-    }
-  }, [spring, to, shouldCount]);
+    if (!shouldCount) return;
+
+    const controls = animate(count, to, {
+      duration,
+      ease: [0.22, 1, 0.36, 1],
+    });
+
+    return () => controls.stop();
+  }, [count, to, shouldCount, duration]);
 
   return (
     <motion.span
