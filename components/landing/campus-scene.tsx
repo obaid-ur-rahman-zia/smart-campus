@@ -9,14 +9,17 @@ function ParticleField() {
   const particlesRef = useRef<THREE.Points>(null);
   const particleCount = 350;
 
-  const positions = useMemo(() => {
-    const pos = new Float32Array(particleCount * 3);
+  const geometry = useMemo(() => {
+    const positions = new Float32Array(particleCount * 3);
     for (let i = 0; i < particleCount; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 20;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 20;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 20;
+      positions[i * 3] = (Math.random() - 0.5) * 20;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 20;
     }
-    return pos;
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    return geo;
   }, []);
 
   useFrame((state) => {
@@ -26,15 +29,7 @@ function ParticleField() {
   });
 
   return (
-    <points ref={particlesRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={particleCount}
-          array={positions}
-          itemSize={3}
-        />
-      </bufferGeometry>
+    <points ref={particlesRef} geometry={geometry}>
       <pointsMaterial
         size={0.05}
         color="#4682b4"
