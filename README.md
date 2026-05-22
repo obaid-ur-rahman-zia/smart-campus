@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Smart Campus Service Portal
 
-## Getting Started
+Production-ready semester project implementing:
+- Role-based access (`student`, `staff`, `admin`)
+- Complaint submission flow
+- Document request flow
+- Status tracking and history
+- Administrative queue + status transitions
+- Supabase auth + PostgreSQL + RLS policies
+- Minimal dashboard UI using shadcn-style components
+- Motion-enhanced icon interactions and a lightweight 3D campus hero
 
-First, run the development server:
+## Stack
+- Next.js 16 (App Router)
+- React 19 + TypeScript
+- Supabase (`@supabase/supabase-js`, `@supabase/ssr`)
+- Tailwind CSS 4
+- Framer Motion + Lucide icons
+- Three.js (`@react-three/fiber`, `@react-three/drei`)
 
+## Setup
+1. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Configure env:
+```bash
+cp .env.example .env.local
+```
+Fill `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Apply SQL schema in Supabase:
+- Run `supabase/migrations/001_smart_campus_init.sql` in SQL Editor.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Start dev server:
+```bash
+npm run dev
+```
 
-## Learn More
+## Main Routes
+- `/` Landing page
+- `/login` Authentication
+- `/register` Registration
+- `/dashboard/student` Student overview + request submit
+- `/dashboard/student/tracking` Student request tracking
+- `/dashboard/staff` Staff queue
+- `/dashboard/admin` Admin management queue
 
-To learn more about Next.js, take a look at the following resources:
+## Design / UI References Used
+- [Animate UI Icons](https://animate-ui.com/docs/icons)
+- [React Bits](https://reactbits.dev/)
+- [React Bits Get Started](https://reactbits.dev/get-started/index)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Notes
+- RLS is enabled for `profiles`, `service_requests`, and `request_updates`.
+- Role profile is auto-created via trigger on `auth.users`.
+- `request_updates` stores status history and activity logs.
